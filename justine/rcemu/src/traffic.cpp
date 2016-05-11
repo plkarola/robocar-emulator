@@ -132,9 +132,19 @@ void justine::robocar::Traffic::cmd_session ( boost::asio::ip::tcp::socket clien
                      " " <<
                      cars_copy.size()
                      << std::endl;
-
-                  for ( auto car:cars_copy )
+                 /*for ( auto car:cars_copy )
                     {
+                      car->step();
+
+                      ss << *car
+                         <<  " " << std::endl;
+
+                    }*/
+                    //atirva
+                  for ( std::vector<std::shared_ptr<Car>>::iterator it=cars_copy.begin(); it != cars_copy.end(); ++it )
+                    {
+                      auto car = *it;
+
                       car->step();
 
                       ss << *car
@@ -220,8 +230,29 @@ void justine::robocar::Traffic::cmd_session ( boost::asio::ip::tcp::socket clien
                 {
 
                   bool hasGangsters {false};
-                  for ( auto c:m_smart_cars )
+                  /*for ( auto c:m_smart_cars )
                     {
+                      if ( c->get_type() == CarType::GANGSTER )
+                        {
+                          length += std::sprintf ( data+length,
+                                                   "<OK %d %u %u %u>", cl.get_id(), c->from(),
+                                                   c->to_node(), c->get_step() );
+
+                          if ( length > network_buffer_size - 512 )
+                            {
+                              length += std::sprintf ( data+length,
+                                                       "<WARN too many gangsters to send through this implementation...>" );
+                              break;
+                            }
+
+                          hasGangsters = true;
+                        }
+                    } */
+                  //atirva
+                  for ( std::vector<std::shared_ptr<SmartCar>>::iterator it = m_smart_cars.begin(); it != m_smart_cars.end(); ++it )
+                    {
+                      auto c = *it;
+
                       if ( c->get_type() == CarType::GANGSTER )
                         {
                           length += std::sprintf ( data+length,
@@ -255,8 +286,27 @@ void justine::robocar::Traffic::cmd_session ( boost::asio::ip::tcp::socket clien
                 {
 
                   bool hasCops {false};
-                  for ( auto c:m_cop_cars )
+                  /* for ( auto c:m_cop_cars )
                     {
+                      length += std::sprintf ( data+length,
+                                               "<OK %d %u %u %u %d>", cl.get_id(), c->from(),
+                                               c->to_node(), c->get_step(), c->get_num_captured_gangsters() );
+
+                      if ( length > network_buffer_size - 512 )
+                        {
+                          length += std::sprintf ( data+length,
+                                                   "<WARN too many cops to send through this implementation...>" );
+                          break;
+                        }
+
+                      hasCops = true;
+
+                    }*/
+                    //atirva
+                  for ( std::vector<std::shared_ptr<CopCar>>::iterator it = m_cop_cars.begin(); it != m_cop_cars.end(); ++it )
+                    {
+                      auto c = *it;
+
                       length += std::sprintf ( data+length,
                                                "<OK %d %u %u %u %d>", cl.get_id(), c->from(),
                                                c->to_node(), c->get_step(), c->get_num_captured_gangsters() );
@@ -392,8 +442,23 @@ osmium::unsigned_object_id_type justine::robocar::Traffic::naive_nearest_gangste
   double maxd = std::numeric_limits<double>::max();
   double lon2 {0.0}, lat2 {0.0};
 
-  for ( auto car:m_smart_cars )
+  /*for ( auto car:m_smart_cars )
     {
+      if ( car->get_type() == CarType::GANGSTER )
+        {
+          toGPS ( car->from(), car->to() , car->get_step(), &lon2, &lat2 );
+          double d = dst ( lon1, lat1, lon2, lat2 );
+          if ( d < maxd )
+            {
+              maxd = d;
+              ret = car->to_node();
+            }
+        }
+    }*/
+  //atirva
+  for ( std::vector<std::shared_ptr<SmartCar>>::iterator it=m_smart_cars.begin() ; it != m_smart_cars.end() ; ++it )
+    {
+      auto car = *it;
 
       if ( car->get_type() == CarType::GANGSTER )
         {
